@@ -7,43 +7,46 @@ underline()     { ansi 4 "$@"; }
 strikethrough() { ansi 9 "$@"; }
 red()           { ansi 31 "$@"; }
 
-# Validate the User Input
-check_userInput()
-{
-    if [[ -z "$userInput" ]];
-    then
-        printf '%s\n' "No input entered"
-        exit 1
-    else
-        printf "You entered %s "  "$userInput"
-        printf '%s\n'
-    fi
-
-}
-
 # Get the AppDynamics Environment Details from user 
-read -p "Please enter BRAND_ENVIRONMENT :" userInput;
-check_userInput
+while read -rep "Please enter BRAND_ENVIRONMENT :" userInput && [[ -z "$userInput" ]] ; 
+    do
+    printf  "\n  $(red No-no, please, no blank BRAND_ENVIRONMENT!) \n\n "
+    done
 BRAND_ENVIRONMENT=$userInput
 
-read -p "Please enter APPLICATION NAME :" userInput;
-check_userInput
+
+while read -rep "Please enter APPLICATION NAME :" userInput && [[ -z "$userInput" ]] ; 
+    do
+    printf  "\n  $(red No-no, please, no blank APPLICATION NAME!) \n\n "
+    done
 APPLICATION_NAME=$userInput
 
-read -p "Please enter CONTROLLER HOST NAME :" userInput;
-check_userInput
+
+while read -rep "Please enter CONTROLLER HOST NAME :" userInput && [[ -z "$userInput" ]] ; 
+    do
+    printf  "\n  $(red No-no, please, no blank CONTROLLER HOST NAME!) \n\n "
+    done
 CONTROLLER_HOST_NAME=$userInput
 
-read -p "Please enter ACCOUNT NAME :" userInput;
-check_userInput
+
+while read -rep "Please enter ACCOUNT NAME :" userInput && [[ -z "$userInput" ]] ; 
+    do
+    printf  "\n  $(red No-no, please, no blank ACCOUNT NAME!) \n\n "
+    done
 ACCOUNT_NAME=$userInput
 
-read -p "Please enter ACCOUNT ACCESS KEY :" userInput;
-check_userInput
+
+while read -rep "Please enter ACCOUNT ACCESS KEY :" userInput && [[ -z "$userInput" ]] ; 
+    do
+    printf  "\n  $(red No-no, please, no blank ACCOUNT ACCESS KEY!) \n\n "
+    done
 ACCOUNT_ACCESS_KEY=$userInput
 
-read -p "Please enter PHP VERSION :" userInput;
-check_userInput
+
+while read -rep "Please enter PHP VERSION :" userInput && [[ -z "$userInput" ]] ; 
+    do
+    printf  "\n  $(red No-no, please, no blank PHP VERSION!) \n\n "
+    done
 PHP_VERSION=$userInput
 
 # Set the Environment Variables
@@ -60,11 +63,11 @@ export APPDYNAMICS_PATH="${APPDYNAMICS_WORKDIR}/appdynamics-php-agent-linux_x64"
 export PHP_VERSION="${PHP_VERSION}"
 
 #Download all the Dependencies
-echo "Download all the Dependencies..."
+printf  "\n $(bold Download all the Dependencies...) \n\n"
 apt-get update -qq; apt-get install tar bzip2 procps -qy
 
 # Delete Working Directory
-echo Deleting Working Directory ${APPDYNAMICS_WORKDIR}
+printf  "\n $(bold Deleting Working Directory) --> $(red ${APPDYNAMICS_WORKDIR}) \n\n"
 rm -rf ${APPDYNAMICS_WORKDIR}
 
 # Clone Scripts and Agents
@@ -79,21 +82,22 @@ tar -xjvf ${APPDYNAMICS_PATH}/appdynamics-php-agent-linux_x64.tar.bz2 --director
 chmod -R 777 ${APPDYNAMICS_WORKDIR}
 
 # Installing AppDynamics with following attributes
-printenv | grep -e APPDYNAMICS -e PHP_VERSION
+printf  "\n $(bold Installing AppDynamics with following attributes...)"
+printenv | grep -e APPDYNAMICS -e PHP_VERSION | while read line; do printf  "\n $(bold $line) \n"; done;
 
 bash ${APPDYNAMICS_PATH}/install.sh -s -a=${APPDYNAMICS_AGENT_ACCOUNT_NAME}@${APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY} -v ${PHP_VERSION} ${APPDYNAMICS_CONTROLLER_HOST_NAME} ${APPDYNAMICS_CONTROLLER_PORT} ${APPDYNAMICS_AGENT_APPLICATION_NAME} ${APPDYNAMICS_AGENT_TIER_NAME} ${APPDYNAMICS_AGENT_NODE_PREFIX_NAME}
 
 # Copy the Generated ini file to atcual path or create link
 # ln -s /etc/php/7.2/cli/conf.d/appdynamics_agent.ini  /etc/php/7.2/fpm/conf.d/appdynamics_agent.ini
-echo Copying... ini file from \n /etc/php/7.2/cli/conf.d/appdynamics_agent.ini to /etc/php/7.2/fpm/conf.d/appdynamics_agent.ini
+printf  "\n $(bold Copying... ini file From ) \n\n /etc/php/7.2/cli/conf.d/appdynamics_agent.ini --> /etc/php/7.2/fpm/conf.d/appdynamics_agent.ini \n"
 cp /etc/php/7.2/cli/conf.d/appdynamics_agent.ini /etc/php/7.2/fpm/conf.d/appdynamics_agent.ini
 
 # Restart the Services like PHP and Nginx to Reflect the changes
-echo "Restarting the PHP FPM Service"
+printf  "\n $(bold Restarting the PHP FPM Service ) \n\n"
 /etc/init.d/php7.2-fpm restart
 
-echo "Restarting the Nginx Service"
+printf  "\n $(bold Restarting the Nginx Service) \n\n"
 /etc/init.d/nginx restart
 
 #Check the Services of AppDynamics
-echo "Check the service with this command: ps -aux | grep java"
+echo  "Check the service with this command:ps -aux | grep java"
