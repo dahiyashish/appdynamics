@@ -100,4 +100,4 @@ printf  "\n $(bold Restarting the Nginx Service) \n\n"
 /etc/init.d/nginx restart
 
 #Check the Services of AppDynamics
-echo  "Check the service with this command:ps -aux | grep java"
+echo  " $(bold Check the service with this command:)  ps -aux | grep java"
